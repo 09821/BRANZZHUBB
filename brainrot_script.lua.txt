@@ -1,0 +1,421 @@
+-- Finder BRAINROT || By Branzz - VERSÃO FUNCIONAL 100%
+local Players = game:GetService("Players")
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
+local RunService = game:GetService("RunService")
+
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1451576749681938596/O0UGtdIBWRBs5vGCCscL76GA_DZ5hD1oVE6Ju4WBjO24dnp63oqwE3VDVncaydq3pmt8"
+
+local VALID_PLOT_IDS = {
+    "1f5c27e-7ee4-4806-ab1d-40513968417f",
+    "2d35b7f0-fdd-8838-b225-e8db471b5dc",
+    "35f45ad5-119a-41b8-a6db-07469ec7e1f2",
+    "7cfb43fb-bb83-4d9d-920c-48eb8f7bb539",
+    "8d5cbce-32f7-4d45-8d8e-8d45b4fc5631",
+    "28e1ec29-d005-1636-82af-239ff37ddef",
+    "960da177-2f01-1327-845a-6a77abb5fla6",
+    "2206f90e-719d-1031-8720-7f0c9f2b158",
+    "dd76771-ee3c-1f08-adae-5a488b2958be",
+    "41392ac2-6042-1f3d-9619-dal-3r00539f",
+    "7c0a47bc-05bd-10a8-d594-5ebe3fcf5e5",
+    "ed0775b7-ea79-1c51-b9e2-1ea07283065d",
+    "a55b93de-2c07-1f0fc-97fe-d03a87d2d5f0"
+}
+
+local VALID_BRAINROT_NAMES = {
+    "Birri Birri Bicus Dicus Bombicus", "Brutto Gialutto", "Bulbito Bandito Traktoito", "Trulimero Trulicina",
+    "Cacasito Satalito", "Cacto Hipopotamo", "Capi Taco", "Matteo", "Caramello Filtrello", "Carlao",
+    "Carrotini Brainini", "Cavallo Virtuoso", "Celularcini Viciositini", "Chesetti", "Chestoni Pizzantini",
+    "Buho de Fuego", "Chiuanini Tacinini", "Chimpanzini Bananini", "Pipi Kiwi", "Cocosini Mama",
+    "Crabbo Limonetta", "Rang Ring Bus", "Dug dug dug", "Dul Dul Dul", "Elefanto Frigo", "Esok Sekolah",
+    "Espresso Signora", "Extinct Ballerina", "Extinct Maffeo", "Extinct Trolleeo", "Orgaleo Orcalia",
+    "Fragola La La", "Frigo Camelo", "Ganganzelli Trulalla", "Garama and Madundugo", "Spooky and Pumpky",
+    "Gattatino Nyanino", "Gattito Tacoto", "Odin Din Din Dun", "Glorbo Fruttodrillio", "Gorillo Subwoofero",
+    "Gorillo Watermellondrillio", "Goriuos Medussi", "Guerriro Digriale", "Job Job Job Sahur", "Kastkerka Kurkur",
+    "Ketchuru and Musturu", "Ketupatt Kepat", "La Cucaracha", "La Extinct Grande", "La Grande Combinasion",
+    "La Karkerkar Combinasion", "La Sahur Combinasion", "La Supreme Combinasion", "La Vacca Saturno Saturnita",
+    "Los Crocojdilltos", "Los Croquchsani", "Bluefruthia", "Las Tajosaritas", "Melon Cacuses",
+    "Burbaloni Lollolii", "Los Combinasiones", "Los Hotspotitos", "Los Chicleteiras", "Las Vaquitas Saturnitas",
+    "Los Noobinis", "Los Nooo My Hotspotitos", "Girafa Celestre", "Las Sis", "Los Matteos", "Las Tipi Tacos",
+    "Los Orcalitos", "Los Sis", "Los Bombinitos", "Zibra Zubra Zibralimi", "Krans Corn Corn Sahur",
+    "Malame Amarele", "Mangolini Parrocini", "Mariachi Corazoni", "Mastontico Telepiedone", "Ta Ta Ta Ta Sahur",
+    "Urubini Flamenguini", "Los Tungtungtungcitos", "Nooo My Hotspot", "Nuclearo Dinosauro", "Bandito Bobritto",
+    "Chillin Chillii", "Alessio", "Orcalita Orcalla", "Pakrahmatmami", "Panacinni Branini", "Pengune Cocosino",
+    "Percchelo Lemonchello", "Pi Pi Watermelon", "Piccione Macchina", "Piccionetta Macchina", "Pipi Avocado",
+    "Pipi Corni", "Bambini Crostini", "Pipi Potato", "Pot Hotspot", "Quesadilla Croccdila", "Quivioli Mlenni",
+    "Raccooni Jadelolini", "Rhino Helicopterin", "Rhino Toasterino", "Sihmno Penguini", "Sammyvi Spyderni",
+    "Los Spydertnis", "Sigma Boy", "Sigma Girl", "Signore Carapace", "Spaghetti Tualetti", "Spioniro Golubiro",
+    "Strawberrelli Flamingelli", "Tim Cheese", "Svinina Bombardino", "Chef Grabracadabra", "Tukanno Bananno",
+    "Tacorita Biciclieta", "Rasha Di Fego", "Tartaruga Cisterna", "Vie Te Te Sahur", "Vti Ti Ti Sahur",
+    "Tictac Sahur", "Trippt Troppi", "Tigroliqre Frutonti", "Cocofanto Elefanto", "Tipi Topi Taco",
+    "Tiriliikalika Tirilikalako", "To to to Sahur", "Tob Tobi Tobi", "Torriuginni Dragonftutini",
+    "Tracoductulu Delapeladstutz", "Tractoro Dinosauro", "Tralaledoni", "Tralalero Tralala",
+    "Tralalita Tralala", "Trenostituzzo Turbo 3000", "Trenostituzzo Turbo 4000", "Tricat Bathroom", "Tripi Troppi Trippa Tripppia",
+    "Cappuccino Assassino", "Strawberry Elephant", "Mythic Lucky Block", "Noo my Candy", "Brainrot God Lucky Block",
+    "Taco Lucky Block", "Admin Lucky Block", "Toiletto Focaccino", "Yess my examine", "Brasilini Berimbini",
+    "Tang Tang Kelotang", "Noo my examine", "Los Primos", "Karker Sahur", "Los Tacolitis", "Perrito Burrito",
+    "Brr Brr Patapin", "Pop Pop Sahur", "Bananito Bandioto", "La Secret Combinasion", "Los Jobcitos",
+    "Los Toritts", "Los 67", "Los Karkeritos", "Squatanana", "Cachorrito Melonito", "Los Lucky Blocks",
+    "Burguro and Fryuro", "Trolledon", "Zombie Tralala", "Jacko Spavienrosa", "Los Nobilis",
+    "Chicleteirina Bicicleteirina", "La Vacca Jacko Linterino", "Vultureino Scheletono",
+    "Tartaraqno", "Pinealotto Fruttarino", "Vampira Cappuccina", "Quackula", "Mummio Rappitto",
+    "Tentacolio Tenico", "Jacko Jack Jack", "Magi Ribbittini", "Fragmenteo", "Spiraleom",
+    "Chicleteira Biciclleteira", "Lirili Larila", "Headless Horseman", "Frogato Pirato",
+    "Mieteteira Biciclleteira", "Pakrahmatmatina", "Krupuk Pagi Pagi", "Boatito Auratito",
+    "Bambu Bambu Sahur", "Anandita Dolphins", "Meow!", "Horegini Bonach", "Quesadilo Vampiro",
+    "Chipso and Queso", "Mummy Ambalalu", "Jackorilla", "Trickolino", "Secret Lucky Block",
+    "Los Spooky Combinasiones", "Telemorte", "Cappuccino Clownino", "Pot Pumpkin", "Pumpkini Spyderini",
+    "La Casa Bool", "Skull Skull Skull", "Spooky Lucky Block", "Burrito Bandito", "La Taco Combinasion",
+    "Frio Ninja", "Wombo Rollo", "Guest 666", "1x1x1x1", "Aquanaut", "Capitano Moby", "Secret"
+}
+
+local placeId = nil
+local autoTP = false
+local foundServers = {}
+local mainGui = nil
+local statsLabel = nil
+local listFrame = nil
+
+local function sendWebhook(title, description, color)
+    local embed = {
+        title = title,
+        description = description,
+        color = color or 16711680,
+        timestamp = DateTime.now():ToIsoString()
+    }
+    
+    pcall(function()
+        HttpService:PostAsync(WEBHOOK_URL, HttpService:JSONEncode({embeds = {embed}}), Enum.HttpContentType.ApplicationJson)
+    end)
+end
+
+local function parseMoneyPerSec(text)
+    if not text then return 0 end
+    local mult = 1
+    local numberStr = text:match("[%d%.]+")
+    if not numberStr then return 0 end
+    if text:find("K") then mult = 1_000
+    elseif text:find("M") then mult = 1_000_000
+    elseif text:find("B") then mult = 1_000_000_000
+    elseif text:find("T") then mult = 1_000_000_000_000
+    elseif text:find("Q") then mult = 1_000_000_000_000_000 end
+    return tonumber(numberStr) * mult
+end
+
+local function getServers(gameId, pageNumber)
+    pageNumber = pageNumber or 1
+    local url = string.format("https://games.roblox.com/v1/games/%d/servers/0?sortOrder=1&limit=100&pageNumber=%d", gameId, pageNumber)
+    
+    local success, response = pcall(function()
+        return HttpService:GetAsync(url, true)
+    end)
+    
+    if success then
+        local ok, data = pcall(function()
+            return HttpService:JSONDecode(response)
+        end)
+        if ok and data then
+            return data.data or {}
+        end
+    end
+    return {}
+end
+
+local function scanCurrentServer()
+    local brainrots = {}
+    local plots = workspace:FindFirstChild("Plots")
+    
+    if not plots then return brainrots end
+    
+    for _, folder in pairs(plots:GetDescendants()) do
+        if folder:IsA("TextLabel") and folder.Name == "Generation" and folder.Parent and folder.Parent:FindFirstChild("DisplayName") then
+            local name = folder.Parent.DisplayName.ContentText
+            
+            if folder.Parent:FindFirstChild("Mutation") and folder.Parent.Mutation.Visible then
+                name = "[" .. folder.Parent.Mutation.ContentText .. "] " .. name
+            end
+            
+            for _, validName in pairs(VALID_BRAINROT_NAMES) do
+                if string.lower(name):find(string.lower(validName)) then
+                    table.insert(brainrots, {
+                        nome = name,
+                        valor = folder.ContentText,
+                        valorNum = parseMoneyPerSec(folder.ContentText)
+                    })
+                    break
+                end
+            end
+        end
+    end
+    
+    return brainrots
+end
+
+local function teleportToServer(serverId)
+    local success = pcall(function()
+        TeleportService:TeleportToPlaceInstance(placeId, serverId, Players.LocalPlayer)
+    end)
+    return success
+end
+
+local function updateServerList()
+    if not listFrame then return end
+    
+    listFrame:ClearAllChildren()
+    
+    for _, server in pairs(foundServers) do
+        local frame = Instance.new("Frame")
+        frame.Size = UDim2.new(1, -15, 0, 35)
+        frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+        frame.BorderSizePixel = 0
+        frame.Parent = listFrame
+        
+        local text = Instance.new("TextLabel")
+        text.Size = UDim2.new(0.6, 0, 1, 0)
+        text.BackgroundTransparency = 1
+        text.Text = "ID: " .. server.id .. " | " .. server.playerCount .. " players"
+        text.TextColor3 = Color3.fromRGB(200, 200, 200)
+        text.TextSize = 12
+        text.Parent = frame
+        
+        local btn = Instance.new("TextButton")
+        btn.Size = UDim2.new(0.4, -5, 1, -5)
+        btn.Position = UDim2.new(0.6, 5, 0, 2.5)
+        btn.Text = "JOIN"
+        btn.BackgroundColor3 = Color3.fromRGB(0, 150, 100)
+        btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        btn.TextSize = 11
+        btn.Parent = frame
+        
+        btn.MouseButton1Click:Connect(function()
+            teleportToServer(server.id)
+        end)
+    end
+    
+    if statsLabel then
+        statsLabel.Text = "Servidores: " .. #foundServers .. " | Players: " .. (foundServers[1] and foundServers[1].playerCount or 0)
+    end
+end
+
+local function searchServers()
+    foundServers = {}
+    local page = 1
+    local totalCount = 0
+    
+    if statsLabel then
+        statsLabel.Text = "🔍 BUSCANDO..."
+    end
+    
+    for page = 1, 10 do
+        local servers = getServers(placeId, page)
+        
+        if not servers or #servers == 0 then break end
+        
+        for _, server in pairs(servers) do
+            table.insert(foundServers, {
+                id = server.id,
+                playerCount = server.playerCount or 0
+            })
+            totalCount = totalCount + 1
+        end
+        
+        wait(0.3)
+    end
+    
+    table.sort(foundServers, function(a, b)
+        return a.playerCount < b.playerCount
+    end)
+    
+    if statsLabel then
+        statsLabel.Text = "✅ Encontrados " .. #foundServers .. " servidores"
+    end
+    
+    updateServerList()
+    sendWebhook("🔍 Busca Completa", "Encontrados: " .. #foundServers .. " servidores", 65280)
+end
+
+local function createMainGui()
+    local sg = Instance.new("ScreenGui")
+    sg.Name = "BrainrotFinder"
+    sg.ResetOnSpawn = false
+    sg.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+    
+    mainGui = Instance.new("Frame")
+    mainGui.Size = UDim2.new(0, 600, 0, 500)
+    mainGui.Position = UDim2.new(0.5, -300, 0.5, -250)
+    mainGui.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    mainGui.BorderColor3 = Color3.fromRGB(255, 100, 0)
+    mainGui.BorderSizePixel = 2
+    mainGui.Draggable = true
+    mainGui.Active = true
+    mainGui.Parent = sg
+    
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, 0, 0, 50)
+    title.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    title.Text = "🔥 Finder BRAINROT || By Branzz"
+    title.TextColor3 = Color3.fromRGB(255, 100, 0)
+    title.TextSize = 18
+    title.Font = Enum.Font.GothamBold
+    title.BorderSizePixel = 0
+    title.Parent = mainGui
+    
+    listFrame = Instance.new("ScrollingFrame")
+    listFrame.Size = UDim2.new(1, -20, 1, -140)
+    listFrame.Position = UDim2.new(0, 10, 0, 60)
+    listFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    listFrame.BorderColor3 = Color3.fromRGB(80, 80, 80)
+    listFrame.BorderSizePixel = 1
+    listFrame.ScrollBarThickness = 8
+    listFrame.Parent = mainGui
+    
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0, 3)
+    layout.Parent = listFrame
+    
+    local bottom = Instance.new("Frame")
+    bottom.Size = UDim2.new(1, 0, 0, 70)
+    bottom.Position = UDim2.new(0, 0, 1, -70)
+    bottom.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    bottom.BorderColor3 = Color3.fromRGB(100, 100, 100)
+    bottom.BorderSizePixel = 1
+    bottom.Parent = mainGui
+    
+    statsLabel = Instance.new("TextLabel")
+    statsLabel.Size = UDim2.new(1, 0, 0, 35)
+    statsLabel.BackgroundTransparency = 1
+    statsLabel.Text = "Clique em BUSCAR"
+    statsLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+    statsLabel.TextSize = 14
+    statsLabel.Font = Enum.Font.Gotham
+    statsLabel.Parent = bottom
+    
+    local searchBtn = Instance.new("TextButton")
+    searchBtn.Size = UDim2.new(0.48, 0, 0.5, -5)
+    searchBtn.Position = UDim2.new(0, 5, 0.5, 3)
+    searchBtn.Text = "🔍 BUSCAR SERVIDORES"
+    searchBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 200)
+    searchBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    searchBtn.TextSize = 13
+    searchBtn.Font = Enum.Font.GothamBold
+    searchBtn.Parent = bottom
+    
+    searchBtn.MouseButton1Click:Connect(function()
+        searchServers()
+    end)
+    
+    local autoBtn = Instance.new("TextButton")
+    autoBtn.Size = UDim2.new(0.48, 0, 0.5, -5)
+    autoBtn.Position = UDim2.new(0.52, 0, 0.5, 3)
+    autoBtn.Text = "AUTO TP: OFF"
+    autoBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+    autoBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    autoBtn.TextSize = 13
+    autoBtn.Font = Enum.Font.GothamBold
+    autoBtn.Parent = bottom
+    
+    autoBtn.MouseButton1Click:Connect(function()
+        autoTP = not autoTP
+        autoBtn.BackgroundColor3 = autoTP and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+        autoBtn.Text = autoTP and "AUTO TP: ON" or "AUTO TP: OFF"
+    end)
+end
+
+local function createToggleButton()
+    local sg = Instance.new("ScreenGui")
+    sg.ResetOnSpawn = false
+    sg.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+    
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, 70, 0, 70)
+    btn.Position = UDim2.new(1, -90, 0.5, -35)
+    btn.BackgroundColor3 = Color3.fromRGB(255, 100, 0)
+    btn.Text = "●"
+    btn.TextSize = 40
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Parent = sg
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(1, 0)
+    corner.Parent = btn
+    
+    btn.MouseButton1Click:Connect(function()
+        if mainGui then
+            mainGui.Visible = not mainGui.Visible
+        end
+    end)
+end
+
+local function createInitialGui()
+    local sg = Instance.new("ScreenGui")
+    sg.ResetOnSpawn = false
+    sg.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+    
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 450, 0, 200)
+    frame.Position = UDim2.new(0.5, -225, 0.5, -100)
+    frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    frame.BorderColor3 = Color3.fromRGB(255, 100, 0)
+    frame.BorderSizePixel = 2
+    frame.Parent = sg
+    
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 0, 50)
+    label.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    label.Text = "🔥 FINDER BRAINROT"
+    label.TextColor3 = Color3.fromRGB(255, 100, 0)
+    label.TextSize = 18
+    label.Font = Enum.Font.GothamBold
+    label.BorderSizePixel = 0
+    label.Parent = frame
+    
+    local input = Instance.new("TextBox")
+    input.Size = UDim2.new(1, -20, 0, 40)
+    input.Position = UDim2.new(0, 10, 0, 60)
+    input.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    input.BorderColor3 = Color3.fromRGB(100, 100, 100)
+    input.TextColor3 = Color3.fromRGB(255, 255, 255)
+    input.PlaceholderText = "Cole o ID do jogo aqui (ex: 12345678)"
+    input.PlaceholderColor3 = Color3.fromRGB(100, 100, 100)
+    input.TextSize = 14
+    input.Parent = frame
+    
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -20, 0, 40)
+    btn.Position = UDim2.new(0, 10, 0, 110)
+    btn.Text = "▶ INICIAR"
+    btn.BackgroundColor3 = Color3.fromRGB(0, 150, 100)
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.TextSize = 16
+    btn.Font = Enum.Font.GothamBold
+    btn.Parent = frame
+    
+    btn.MouseButton1Click:Connect(function()
+        local id = tonumber(input.Text)
+        if id then
+            placeId = id
+            sg:Destroy()
+            createToggleButton()
+            createMainGui()
+            sendWebhook("✅ FINDER INICIADO", "Place ID: " .. placeId, 65280)
+        end
+    end)
+end
+
+createInitialGui()
+
+while true do
+    wait(1)
+    if autoTP and #foundServers > 0 then
+        for _, server in pairs(foundServers) do
+            teleportToServer(server.id)
+            wait(3)
+            local brainrots = scanCurrentServer()
+            if #brainrots > 0 then
+                sendWebhook("✅ BRAINROT ENCONTRADO!", brainrots[1].nome .. " - " .. brainrots[1].valor, 65280)
+                break
+            end
+        end
+    end
+    wait(2)
+end
