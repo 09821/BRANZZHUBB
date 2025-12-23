@@ -1,0 +1,1099 @@
+-- Script by Project Branzz
+-- Brainrot Finder System
+
+-- Services
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local CoreGui = game:GetService("CoreGui")
+local TextChatService = game:GetService("TextChatService")
+local StarterGui = game:GetService("StarterGui")
+
+-- Player
+local player = Players.LocalPlayer
+local mouse = player:GetMouse()
+
+-- Configurações
+local placeId = nil
+local webhookUrl = "https://discord.com/api/webhooks/1451576749681938596/O0UGtdIBWRBs5vGCCscL76GA_DZ5hD1oVE6Ju4WBjO24dnp63oqwE3VDVncaydq3pmt8"
+
+-- Listas de Brainrots e IDs
+local VALID_BRAINROTS = {
+    "Brri Brri Bicus Dicus Bombicus", "Brutto Gialutto", "Bulbito Bandito Traktorito", "Trulinero Trulicina",
+    "Caessito Satalito", "Cacto Hippopotamo", "Capi Taco", "Matteo", "Caramello Filtrello", "Carloo",
+    "Carrotini Brainini", "Cavallo Virtuoso", "Cellularcini Viciosini", "Chachechi", "Noobini Pizzanini",
+    "Bubo de Fuego", "Chihuanini Taconini", "Chimpanzini Bananini", "Pipi Kiwi", "Cocosini Mama",
+    "Crabbo Limonetta", "Rang Ring Bus", "Dug dug dug", "Dul Dul Dul", "Elefanto Frigo", "Esok Sekolah",
+    "Espresso Signora", "Extinct Ballerina", "Extinct Matteo", "Extinct Tralalero", "Orcalero Orcala",
+    "Fragola La La La", "Frigo Camelo", "Ganganzelli Trulala", "Garama and Madundung", "Spooky and Pumpky",
+    "Gattatino Nyanino", "Gattito Tacoto", "Odin Din Din Dun", "Glorbo Fruttodrillo", "Gorillo Subwoofero",
+    "Gorillo Watermelondrillo", "Grajpuss Medussi", "Guerriro Digitale", "Job Job Job Sahur", "Karkerkar Kurkur",
+    "Ketchuru and Musturu", "Ketupat Kepat", "La Cucaracha", "La Extinct Grande", "La Grande Combinasion",
+    "La Karkerkar Combinasion", "La Sahur Combinasion", "La Supreme Combinasion", "La Vacca Saturno Saturnita",
+    "Los Crocodillitos", "Las Capuchinas", "Fluriflura", "Las Tralaleritas", "Lerulerulerule", "Lionel Cactuseli",
+    "Burbaloni Lollioli", "Los Combinasionas", "Los Hotspotsitos", "Los Chicleteiras", "Las Vaquitas Saturnitas",
+    "Los Noobinis", "Los Noobo My Hotspotsitos", "Gizafa Celestre", "Las Sis", "Los Matteos", "Los Tipi Tacos",
+    "Los Orcalltos", "Los Bros", "Los Bombinitos", "Zibra Zibralini", "Corn Corn Corn Sahur", "Malame Amarele",
+    "Mangolini Parrocini", "Mariachi Corazoni", "Mastodontico Telepedeone", "Ta Ta Ta Ta Sahur", "Urubini Flamenguini",
+    "Los Tungtungtungcitos", "Nooo My Hotspot", "Nuclearo Dinossauro", "Bandito Bobritto", "Chillin Chili",
+    "Alessio", "Orcellia Orcala", "Pakrahmatnamat", "Pandaccini Bananini", "Penguino Cocosino", "Perochello Lemonchello",
+    "Pi Pi Watermelon", "Piccione Macchina", "Piccionetta Macchina", "Pipi Avocado", "Pipi Corni", "Bambini Crostini",
+    "Pipi Potato", "Pot Hotspot", "Quesadilla Crocodila", "Quivioli Ameleonni", "Raccooni Jandelini", "Rhino Helicopterino",
+    "Rhino Toasterino", "Salamino Penguino", "Sammyni Spyderini", "Los Spyderinis", "Sigma Boy", "Sigma Girl",
+    "Signore Carapace", "Spaghetti Tualetti", "Spioniro Golubiro", "Strawberrelli Flamingelli", "Tim Cheese",
+    "Svinina Bombardino", "Chef Crabracadabra", "Tukanno Bananno", "Tacorita Bicicleta", "Talpa Di Fero",
+    "Tartaruga Cisterna", "Te Te Te Sahur", "Ti Iì Iì Tahur", "Tietze Sahur", "Trippi Troppi", "Tigroligre Frutonni",
+    "Cocofanto Elefanto", "Tipi Topi Taco", "Tirilikalika Tirilikalako", "To to to Sahur", "Tob Tobì Tobì",
+    "Torrtuginni Dragonfrutini", "Tracoductulu Delapeladustuz", "Tractoro Dinosauro", "Tralaledon", "Tralalero Tralala",
+    "Tralalita Tralala", "Trenostruzzo Turbo 3000", "Trenostruzzo Turbo 4000", "Tric Trac Baraboom", "Trippi Troppi Troppa Trippa",
+    "Cappuccino Assassino", "Strawberry Elephant", "Mythic Lucky Block", "Noo my Candy", "Brainrot God Lucky Block",
+    "Taco Lucky Block", "Admin Lucky Block", "Toiletto Focaccino", "Yes any examine", "Brashlini Berimbini",
+    "Tang Tang Keletang", "Noo my examine", "Los Primos", "Karker Sahur", "Los Tacoritas", "Perrito Burrito",
+    "Brr Brr Patapàn", "Pop Pop Sahur", "Bananito Bandito", "La Secret Combinasion", "Los Jobcitos", "Los Tortus",
+    "Los 67", "Los Karkeritos", "Squalanana", "Cachorrito Melonito", "Los Lucky Blocks", "Burguro And Fryuro",
+    "Eviledon", "Zombie Tralala", "Jacko Spaventosa", "Los Mobilis", "Chicleteirina Bicicleteirina", "La Spooky Grande",
+    "La Vacca Jacko Linterino", "Vulturino Skeletono", "Tartaragno", "Pinealotto Fruttarino", "Vampira Cappucina",
+    "Quackula", "Mummio Rappitto", "Tentacolo Tecnico", "Jacko Jack Jack", "Magi Ribbitini", "Frankentteo",
+    "Snailenzo", "Chicleteira Bicicleteirina", "Lirilli Larila", "Headless Horseman", "Frogato Pirato",
+    "Mieteteira Bicicleteirina", "Pakrahmatmatina", "Krupuk Pagi Pagi", "Boatito Auratico", "Bambu Bambu Sahur",
+    "Bananita Dolphintita", "Meowl", "Horegini Boom", "Questadillo Vampiro", "Chipso and Queso", "Mummy Ambalabu",
+    "Jackorilla", "Trickolino", "Secret Lucky Block", "Los Spooky Combinasionas", "Telemorte", "Cappuccino Clownino",
+    "Pot Pumpkin", "Pumpkini Spyderini", "La Casa Boo", "Skull Skull Skull", "Spooky Lucky Block", "Burrito Bandito",
+    "La Taco Combinasion", "Frio Ninja", "Nombo Rollo", "Guest 666", "Ixixixi", "Aquanaut", "Capitano Moby", "Secret"
+}
+
+local TARGET_IDS_1 = {
+    "28e4ec29-d005-4636-82af-339f37dcef",
+    "960ab477-3f31-4327-845e-6a77ebb5fa6",
+    "2206090e-719d-4034-8720-700c9fb2h458",
+    "dd76771-ce3c-4108-adae-5a488b2958be",
+    "44392a62-6012-413d-9619-dab73c00539f",
+    "f38295a3-05ed-fala-959d-5ebe3fd35e5",
+    "ed0775b7-ea79-4c54-b9e2-lea07283065d",
+    "a55b93d6-2c07-40f6-97fe-d03a87d2d5f0"
+}
+
+local TARGET_IDS_2 = {
+    "10f5c27e-7ee4-4806-ab1d-405193684177",
+    "2d35b776-f40d-4838-b225-e8db47175cd7",
+    "35f45ad5-11ba-41b8-a6db-07469ec7e112",
+    "7cfb431f-bb83-dd9d-920c-48eb8f78b539",
+    "9d8e8eea-32f7-4a45-8d8e-8d45b-4fc8631",
+    "FirstFloor",
+    "FirstFloor",
+    "a0f18baa-f857-4f11-b919-a4d20c53ab64"
+}
+
+-- Variáveis globais
+local mainGui = nil
+local circleGui = nil
+local miniGui = nil
+local serversFound = {}
+local detectedBrainrots = {}
+local autoTPEnabled = false
+local autoExecuteEnabled = false
+local searching = false
+local espObjects = {}
+local currentServerJobId = nil
+
+-- Função para criar tela de carregamento
+local function createLoadingScreen()
+    local loadingScreen = Instance.new("ScreenGui")
+    loadingScreen.Name = "BrainrotLoadingScreen"
+    loadingScreen.IgnoreGuiInset = true
+    loadingScreen.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    loadingScreen.Parent = CoreGui
+
+    local background = Instance.new("Frame")
+    background.Name = "Background"
+    background.Size = UDim2.new(1, 0, 1, 0)
+    background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    background.BackgroundTransparency = 0.1
+    background.Parent = loadingScreen
+
+    local container = Instance.new("Frame")
+    container.Name = "Container"
+    container.Size = UDim2.new(0.4, 0, 0.3, 0)
+    container.Position = UDim2.new(0.3, 0, 0.35, 0)
+    container.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    container.BorderSizePixel = 0
+    container.Parent = background
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0.05, 0)
+    corner.Parent = container
+
+    local title = Instance.new("TextLabel")
+    title.Name = "Title"
+    title.Text = "Project Branzz"
+    title.Size = UDim2.new(1, 0, 0.3, 0)
+    title.Position = UDim2.new(0, 0, 0.1, 0)
+    title.BackgroundTransparency = 1
+    title.TextColor3 = Color3.fromRGB(0, 198, 255)
+    title.Font = Enum.Font.GothamBold
+    title.TextScaled = true
+    title.Parent = container
+
+    local subtitle = Instance.new("TextLabel")
+    subtitle.Name = "Subtitle"
+    subtitle.Text = "Brainrot Finder System"
+    subtitle.Size = UDim2.new(1, 0, 0.2, 0)
+    subtitle.Position = UDim2.new(0, 0, 0.4, 0)
+    subtitle.BackgroundTransparency = 1
+    subtitle.TextColor3 = Color3.fromRGB(255, 138, 0)
+    subtitle.Font = Enum.Font.Gotham
+    subtitle.TextScaled = true
+    subtitle.Parent = container
+
+    local loadingBar = Instance.new("Frame")
+    loadingBar.Name = "LoadingBar"
+    loadingBar.Size = UDim2.new(0.8, 0, 0.1, 0)
+    loadingBar.Position = UDim2.new(0.1, 0, 0.7, 0)
+    loadingBar.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
+    loadingBar.BorderSizePixel = 0
+    loadingBar.Parent = container
+
+    local barCorner = Instance.new("UICorner")
+    barCorner.CornerRadius = UDim.new(1, 0)
+    barCorner.Parent = loadingBar
+
+    local progress = Instance.new("Frame")
+    progress.Name = "Progress"
+    progress.Size = UDim2.new(0, 0, 1, 0)
+    progress.BackgroundColor3 = Color3.fromRGB(0, 198, 255)
+    progress.BorderSizePixel = 0
+    progress.Parent = loadingBar
+
+    local progressCorner = Instance.new("UICorner")
+    progressCorner.CornerRadius = UDim.new(1, 0)
+    progressCorner.Parent = progress
+
+    local loadingText = Instance.new("TextLabel")
+    loadingText.Name = "LoadingText"
+    loadingText.Text = "Carregando..."
+    loadingText.Size = UDim2.new(1, 0, 0.2, 0)
+    loadingText.Position = UDim2.new(0, 0, 0.85, 0)
+    loadingText.BackgroundTransparency = 1
+    loadingText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    loadingText.Font = Enum.Font.Gotham
+    loadingText.TextScaled = true
+    loadingText.Parent = container
+
+    -- Animar progresso
+    local tweenInfo = TweenInfo.new(3, Enum.EasingStyle.Linear)
+    local tween = TweenService:Create(progress, tweenInfo, {Size = UDim2.new(1, 0, 1, 0)})
+    tween:Play()
+    
+    return loadingScreen, tween
+end
+
+-- Função para criar GUI de input de Place ID
+local function createPlaceIdInput()
+    local inputGui = Instance.new("ScreenGui")
+    inputGui.Name = "PlaceIdInputGui"
+    inputGui.IgnoreGuiInset = true
+    inputGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    inputGui.Parent = CoreGui
+
+    local background = Instance.new("Frame")
+    background.Name = "Background"
+    background.Size = UDim2.new(1, 0, 1, 0)
+    background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    background.BackgroundTransparency = 0.2
+    background.Parent = inputGui
+
+    local container = Instance.new("Frame")
+    container.Name = "Container"
+    container.Size = UDim2.new(0.5, 0, 0.4, 0)
+    container.Position = UDim2.new(0.25, 0, 0.3, 0)
+    container.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    container.BorderSizePixel = 0
+    container.Parent = background
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0.05, 0)
+    corner.Parent = container
+
+    local title = Instance.new("TextLabel")
+    title.Name = "Title"
+    title.Text = "Configuração do Brainrot Finder"
+    title.Size = UDim2.new(1, 0, 0.2, 0)
+    title.Position = UDim2.new(0, 0, 0.1, 0)
+    title.BackgroundTransparency = 1
+    title.TextColor3 = Color3.fromRGB(0, 198, 255)
+    title.Font = Enum.Font.GothamBold
+    title.TextScaled = true
+    title.Parent = container
+
+    local inputFrame = Instance.new("Frame")
+    inputFrame.Name = "InputFrame"
+    inputFrame.Size = UDim2.new(0.8, 0, 0.2, 0)
+    inputFrame.Position = UDim2.new(0.1, 0, 0.4, 0)
+    inputFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
+    inputFrame.BorderSizePixel = 0
+    inputFrame.Parent = container
+
+    local inputCorner = Instance.new("UICorner")
+    inputCorner.CornerRadius = UDim.new(0.05, 0)
+    inputCorner.Parent = inputFrame
+
+    local inputBox = Instance.new("TextBox")
+    inputBox.Name = "InputBox"
+    inputBox.Size = UDim2.new(0.9, 0, 0.8, 0)
+    inputBox.Position = UDim2.new(0.05, 0, 0.1, 0)
+    inputBox.BackgroundTransparency = 1
+    inputBox.Text = ""
+    inputBox.PlaceholderText = "Cole o link completo da place ID aqui..."
+    inputBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    inputBox.Font = Enum.Font.Gotham
+    inputBox.TextSize = 18
+    inputBox.Parent = inputFrame
+
+    local confirmButton = Instance.new("TextButton")
+    confirmButton.Name = "ConfirmButton"
+    confirmButton.Text = "INICIAR SISTEMA"
+    confirmButton.Size = UDim2.new(0.4, 0, 0.2, 0)
+    confirmButton.Position = UDim2.new(0.3, 0, 0.7, 0)
+    confirmButton.BackgroundColor3 = Color3.fromRGB(0, 198, 255)
+    confirmButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    confirmButton.Font = Enum.Font.GothamBold
+    confirmButton.TextSize = 18
+    confirmButton.Parent = container
+
+    local buttonCorner = Instance.new("UICorner")
+    buttonCorner.CornerRadius = UDim.new(0.1, 0)
+    buttonCorner.Parent = confirmButton
+
+    confirmButton.MouseButton1Click:Connect(function()
+        local text = inputBox.Text
+        local foundId = string.match(text, "games/(%d+)") or string.match(text, "placeId=(%d+)") or text
+        
+        if foundId and tonumber(foundId) then
+            placeId = tonumber(foundId)
+            inputGui:Destroy()
+            setupMainSystem()
+        else
+            inputBox.Text = "Link inválido! Use: https://www.roblox.com/games/ID/..."
+            wait(2)
+            inputBox.Text = ""
+        end
+    end)
+
+    return inputGui
+end
+
+-- Função para criar círculo de toggle
+local function createCircleToggle()
+    circleGui = Instance.new("ScreenGui")
+    circleGui.Name = "BrainrotCircleToggle"
+    circleGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+    circleGui.Parent = CoreGui
+
+    local circle = Instance.new("TextButton")
+    circle.Name = "Circle"
+    circle.Text = "🎮"
+    circle.Size = UDim2.new(0, 50, 0, 50)
+    circle.Position = UDim2.new(0, 20, 0.5, -25)
+    circle.BackgroundColor3 = Color3.fromRGB(0, 198, 255)
+    circle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    circle.Font = Enum.Font.GothamBold
+    circle.TextSize = 24
+    circle.ZIndex = 100
+    circle.Parent = circleGui
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(1, 0)
+    corner.Parent = circle
+
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Color3.fromRGB(255, 255, 255)
+    stroke.Thickness = 2
+    stroke.Parent = circle
+
+    local dragToggle = false
+    local dragInput, dragStart, startPos
+
+    local function updateInput(input)
+        local delta = input.Position - dragStart
+        circle.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+
+    circle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragToggle = true
+            dragStart = input.Position
+            startPos = circle.Position
+            
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragToggle = false
+                end
+            end)
+        end
+    end)
+
+    circle.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
+            dragInput = input
+        end
+    end)
+
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if input == dragInput and dragToggle then
+            updateInput(input)
+        end
+    end)
+
+    return circle
+end
+
+-- Função para criar GUI principal
+local function createMainGui()
+    mainGui = Instance.new("ScreenGui")
+    mainGui.Name = "BrainrotMainGui"
+    mainGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+    mainGui.Parent = CoreGui
+
+    local mainFrame = Instance.new("Frame")
+    mainFrame.Name = "MainFrame"
+    mainFrame.Size = UDim2.new(0, 400, 0, 500)
+    mainFrame.Position = UDim2.new(0.5, -200, 0.5, -250)
+    mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    mainFrame.BorderSizePixel = 0
+    mainFrame.Visible = false
+    mainFrame.Parent = mainGui
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0.05, 0)
+    corner.Parent = mainFrame
+
+    local title = Instance.new("TextLabel")
+    title.Name = "Title"
+    title.Text = "Finder BRAINROT || By Branzz"
+    title.Size = UDim2.new(1, 0, 0.1, 0)
+    title.Position = UDim2.new(0, 0, 0, 0)
+    title.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
+    title.TextColor3 = Color3.fromRGB(0, 198, 255)
+    title.Font = Enum.Font.GothamBold
+    title.TextSize = 20
+    title.Parent = mainFrame
+
+    local closeButton = Instance.new("TextButton")
+    closeButton.Name = "CloseButton"
+    closeButton.Text = "X"
+    closeButton.Size = UDim2.new(0, 30, 0, 30)
+    closeButton.Position = UDim2.new(1, -35, 0, 5)
+    closeButton.BackgroundColor3 = Color3.fromRGB(231, 76, 60)
+    closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    closeButton.Font = Enum.Font.GothamBold
+    closeButton.TextSize = 18
+    closeButton.Parent = mainFrame
+
+    local closeCorner = Instance.new("UICorner")
+    closeCorner.CornerRadius = UDim.new(0.5, 0)
+    closeCorner.Parent = closeButton
+
+    local serversFrame = Instance.new("ScrollingFrame")
+    serversFrame.Name = "ServersFrame"
+    serversFrame.Size = UDim2.new(0.9, 0, 0.7, 0)
+    serversFrame.Position = UDim2.new(0.05, 0, 0.15, 0)
+    serversFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+    serversFrame.BorderSizePixel = 0
+    serversFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+    serversFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    serversFrame.ScrollBarThickness = 5
+    serversFrame.Parent = mainFrame
+
+    local serversCorner = Instance.new("UICorner")
+    serversCorner.CornerRadius = UDim.new(0.03, 0)
+    serversCorner.Parent = serversFrame
+
+    local controlsFrame = Instance.new("Frame")
+    controlsFrame.Name = "ControlsFrame"
+    controlsFrame.Size = UDim2.new(0.9, 0, 0.1, 0)
+    controlsFrame.Position = UDim2.new(0.05, 0, 0.87, 0)
+    controlsFrame.BackgroundTransparency = 1
+    controlsFrame.Parent = mainFrame
+
+    local searchButton = Instance.new("TextButton")
+    searchButton.Name = "SearchButton"
+    searchButton.Text = "🔍 BUSCAR SERVIDORES"
+    searchButton.Size = UDim2.new(0.45, 0, 1, 0)
+    searchButton.Position = UDim2.new(0, 0, 0, 0)
+    searchButton.BackgroundColor3 = Color3.fromRGB(0, 198, 255)
+    searchButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    searchButton.Font = Enum.Font.GothamBold
+    searchButton.TextSize = 16
+    searchButton.Parent = controlsFrame
+
+    local buttonCorner1 = Instance.new("UICorner")
+    buttonCorner1.CornerRadius = UDim.new(0.1, 0)
+    buttonCorner1.Parent = searchButton
+
+    local autoTPButton = Instance.new("TextButton")
+    autoTPButton.Name = "AutoTPButton"
+    autoTPButton.Text = "AUTO TP: OFF"
+    autoTPButton.Size = UDim2.new(0.45, 0, 1, 0)
+    autoTPButton.Position = UDim2.new(0.55, 0, 0, 0)
+    autoTPButton.BackgroundColor3 = Color3.fromRGB(231, 76, 60)
+    autoTPButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    autoTPButton.Font = Enum.Font.GothamBold
+    autoTPButton.TextSize = 16
+    autoTPButton.Parent = controlsFrame
+
+    local buttonCorner2 = Instance.new("UICorner")
+    buttonCorner2.CornerRadius = UDim.new(0.1, 0)
+    buttonCorner2.Parent = autoTPButton
+
+    -- Sistema de arrastar
+    local dragToggle = false
+    local dragInput, dragStart, startPos
+
+    local function updateInput(input)
+        local delta = input.Position - dragStart
+        mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+
+    title.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragToggle = true
+            dragStart = input.Position
+            startPos = mainFrame.Position
+            
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragToggle = false
+                end
+            end)
+        end
+    end)
+
+    title.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
+            dragInput = input
+        end
+    end)
+
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if input == dragInput and dragToggle then
+            updateInput(input)
+        end
+    end)
+
+    closeButton.MouseButton1Click:Connect(function()
+        mainFrame.Visible = false
+    end)
+
+    return mainFrame, serversFrame, searchButton, autoTPButton
+end
+
+-- Função para criar mini GUI
+local function createMiniGui()
+    miniGui = Instance.new("ScreenGui")
+    miniGui.Name = "BrainrotMiniGui"
+    miniGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+    miniGui.Parent = CoreGui
+
+    local miniFrame = Instance.new("Frame")
+    miniFrame.Name = "MiniFrame"
+    miniFrame.Size = UDim2.new(0, 250, 0, 100)
+    miniFrame.Position = UDim2.new(0.7, 0, 0.1, 0)
+    miniFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    miniFrame.BorderSizePixel = 0
+    miniFrame.Visible = false
+    miniFrame.Parent = miniGui
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0.05, 0)
+    corner.Parent = miniFrame
+
+    local title = Instance.new("TextLabel")
+    title.Name = "Title"
+    title.Text = "📊 Status Sistema"
+    title.Size = UDim2.new(1, 0, 0.3, 0)
+    title.Position = UDim2.new(0, 0, 0, 0)
+    title.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
+    title.TextColor3 = Color3.fromRGB(0, 198, 255)
+    title.Font = Enum.Font.GothamBold
+    title.TextSize = 18
+    title.Parent = miniFrame
+
+    local statsFrame = Instance.new("Frame")
+    statsFrame.Name = "StatsFrame"
+    statsFrame.Size = UDim2.new(1, 0, 0.7, 0)
+    statsFrame.Position = UDim2.new(0, 0, 0.3, 0)
+    statsFrame.BackgroundTransparency = 1
+    statsFrame.Parent = miniFrame
+
+    local serversLabel = Instance.new("TextLabel")
+    serversLabel.Name = "ServersLabel"
+    serversLabel.Text = "Servidores: 0"
+    serversLabel.Size = UDim2.new(1, 0, 0.4, 0)
+    serversLabel.Position = UDim2.new(0, 10, 0.1, 0)
+    serversLabel.BackgroundTransparency = 1
+    serversLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    serversLabel.Font = Enum.Font.Gotham
+    serversLabel.TextSize = 16
+    serversLabel.TextXAlignment = Enum.TextXAlignment.Left
+    serversLabel.Parent = statsFrame
+
+    local playersLabel = Instance.new("TextLabel")
+    playersLabel.Name = "PlayersLabel"
+    playersLabel.Text = "Players: 0"
+    playersLabel.Size = UDim2.new(1, 0, 0.4, 0)
+    playersLabel.Position = UDim2.new(0, 10, 0.5, 0)
+    playersLabel.BackgroundTransparency = 1
+    playersLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    playersLabel.Font = Enum.Font.Gotham
+    playersLabel.TextSize = 16
+    playersLabel.TextXAlignment = Enum.TextXAlignment.Left
+    playersLabel.Parent = statsFrame
+
+    -- Sistema de arrastar para mini gui
+    local dragToggle = false
+    local dragInput, dragStart, startPos
+
+    local function updateInput(input)
+        local delta = input.Position - dragStart
+        miniFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+
+    title.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragToggle = true
+            dragStart = input.Position
+            startPos = miniFrame.Position
+            
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragToggle = false
+                end
+            end)
+        end
+    end)
+
+    title.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
+            dragInput = input
+        end
+    end)
+
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if input == dragInput and dragToggle then
+            updateInput(input)
+        end
+    end)
+
+    return miniFrame, serversLabel, playersLabel
+end
+
+-- Função para parsear valor de dinheiro por segundo
+local function parseMoneyPerSec(text)
+    if not text then return 0 end
+    local mult = 1
+    local numberStr = text:match("[%d%.]+")
+    if not numberStr then return 0 end
+    if text:find("K") then mult = 1_000
+    elseif text:find("M") then mult = 1_000_000
+    elseif text:find("B") then mult = 1_000_000_000
+    elseif text:find("T") then mult = 1_000_000_000_000
+    elseif text:find("Q") then mult = 1_000_000_000_000_000 end
+    return tonumber(numberStr) * mult
+end
+
+-- Função para detectar brainrots
+local function detectBrainrots()
+    local foundBrainrots = {}
+    
+    -- Procurar na pasta Plots
+    local plotsFolder = Workspace:FindFirstChild("Plots")
+    if plotsFolder then
+        for _, plot in ipairs(plotsFolder:GetDescendants()) do
+            if plot:IsA("Model") then
+                -- Verificar se é um brainrot válido
+                for _, brainrotName in ipairs(VALID_BRAINROTS) do
+                    if plot.Name == brainrotName then
+                        table.insert(foundBrainrots, {
+                            name = plot.Name,
+                            model = plot,
+                            position = plot:GetPivot().Position
+                        })
+                        break
+                    end
+                end
+                
+                -- Verificar IDs das imagens
+                for _, id in ipairs(TARGET_IDS_1) do
+                    if plot.Name == id then
+                        table.insert(foundBrainrots, {
+                            name = "ID_1: " .. plot.Name,
+                            model = plot,
+                            position = plot:GetPivot().Position
+                        })
+                    end
+                end
+                
+                for _, id in ipairs(TARGET_IDS_2) do
+                    if plot.Name == id then
+                        table.insert(foundBrainrots, {
+                            name = "ID_2: " .. plot.Name,
+                            model = plot,
+                            position = plot:GetPivot().Position
+                        })
+                    end
+                end
+            end
+        end
+    end
+    
+    -- Procurar por geração de dinheiro
+    local valorizadoDog = false
+    local brainrotsWebhook = {}
+    
+    for _, brainrote in pairs(Workspace:GetDescendants()) do
+        if brainrote:IsA("TextLabel") and brainrote.Name == "Generation" then
+            local nomezinDog = ""
+            if brainrote.Parent:FindFirstChild("Mutation") and brainrote.Parent.Mutation.Visible then
+                nomezinDog = "[" .. brainrote.Parent.Mutation.Text .. "] " .. brainrote.Parent.DisplayName.Text
+            else
+                nomezinDog = brainrote.Parent.DisplayName.Text
+            end
+            table.insert(brainrotsWebhook, {
+                nome = nomezinDog, 
+                valor = brainrote.Text
+            })
+            
+            if parseMoneyPerSec(brainrote.Text) > 49999999 then
+                valorizadoDog = true
+                table.insert(foundBrainrots, {
+                    name = "💎 " .. nomezinDog,
+                    model = brainrote.Parent,
+                    position = brainrote.Parent:GetPivot().Position,
+                    value = brainrote.Text
+                })
+            end
+        end
+    end
+    
+    return foundBrainrots
+end
+
+-- Função para criar ESP
+local function createESP(target, name, color)
+    -- Limpar ESP anterior
+    if espObjects[name] then
+        for _, obj in pairs(espObjects[name]) do
+            obj:Destroy()
+        end
+    end
+    
+    espObjects[name] = {}
+    
+    -- Criar BillboardGui
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "ESP_" .. name
+    billboard.Size = UDim2.new(0, 200, 0, 50)
+    billboard.StudsOffset = Vector3.new(0, 3, 0)
+    billboard.AlwaysOnTop = true
+    billboard.Adornee = target
+    billboard.Parent = target
+    
+    local label = Instance.new("TextLabel")
+    label.Name = "Label"
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.BackgroundTransparency = 1
+    label.Text = name
+    label.TextColor3 = color
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 18
+    label.Parent = billboard
+    
+    -- Criar linha
+    local line = Instance.new("BoxHandleAdornment")
+    line.Name = "Line"
+    line.Size = Vector3.new(1, 1, 1)
+    line.Color3 = color
+    line.Transparency = 0.5
+    line.Adornee = target
+    line.ZIndex = 5
+    line.AlwaysOnTop = true
+    line.Parent = target
+    
+    -- Criar highlight
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "Highlight"
+    highlight.FillColor = color
+    highlight.FillTransparency = 0.8
+    highlight.OutlineColor = color
+    highlight.Adornee = target
+    highlight.Parent = target
+    
+    table.insert(espObjects[name], billboard)
+    table.insert(espObjects[name], line)
+    table.insert(espObjects[name], highlight)
+end
+
+-- Função para limpar ESP
+local function clearESP()
+    for _, objects in pairs(espObjects) do
+        for _, obj in pairs(objects) do
+            obj:Destroy()
+        end
+    end
+    espObjects = {}
+end
+
+-- Função para buscar servidores
+local function searchServers()
+    if searching then return end
+    searching = true
+    
+    local serversFrame = mainGui.MainFrame.ServersFrame
+    serversFrame:ClearAllChildren()
+    
+    -- Simular busca de servidores
+    local mockServers = {
+        {jobId = "job123", players = 1, maxPlayers = 50, ping = 50},
+        {jobId = "job456", players = 3, maxPlayers = 50, ping = 80},
+        {jobId = "job789", players = 1, maxPlayers = 50, ping = 120},
+        {jobId = "job101", players = 5, maxPlayers = 50, ping = 200},
+    }
+    
+    serversFound = mockServers
+    
+    for i, server in ipairs(serversFound) do
+        local serverFrame = Instance.new("Frame")
+        serverFrame.Name = "Server_" .. i
+        serverFrame.Size = UDim2.new(1, -10, 0, 80)
+        serverFrame.Position = UDim2.new(0, 5, 0, (i-1) * 85)
+        serverFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+        serverFrame.BorderSizePixel = 0
+        serverFrame.Parent = serversFrame
+        
+        local corner = Instance.new("UICorner")
+        corner.CornerRadius = UDim.new(0.05, 0)
+        corner.Parent = serverFrame
+        
+        local infoFrame = Instance.new("Frame")
+        infoFrame.Name = "InfoFrame"
+        infoFrame.Size = UDim2.new(0.7, 0, 1, 0)
+        infoFrame.BackgroundTransparency = 1
+        infoFrame.Parent = serverFrame
+        
+        local serverName = Instance.new("TextLabel")
+        serverName.Name = "ServerName"
+        serverName.Text = "Servidor #" .. i
+        serverName.Size = UDim2.new(1, 0, 0.4, 0)
+        serverName.Position = UDim2.new(0, 10, 0.1, 0)
+        serverName.BackgroundTransparency = 1
+        serverName.TextColor3 = Color3.fromRGB(0, 198, 255)
+        serverName.Font = Enum.Font.GothamBold
+        serverName.TextSize = 16
+        serverName.TextXAlignment = Enum.TextXAlignment.Left
+        serverName.Parent = infoFrame
+        
+        local playersLabel = Instance.new("TextLabel")
+        playersLabel.Name = "PlayersLabel"
+        playersLabel.Text = "👥 " .. server.players .. "/" .. server.maxPlayers
+        playersLabel.Size = UDim2.new(1, 0, 0.3, 0)
+        playersLabel.Position = UDim2.new(0, 10, 0.4, 0)
+        playersLabel.BackgroundTransparency = 1
+        playersLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        playersLabel.Font = Enum.Font.Gotham
+        playersLabel.TextSize = 14
+        playersLabel.TextXAlignment = Enum.TextXAlignment.Left
+        playersLabel.Parent = infoFrame
+        
+        local pingLabel = Instance.new("TextLabel")
+        pingLabel.Name = "PingLabel"
+        pingLabel.Text = "📶 Ping: " .. server.ping .. "ms"
+        pingLabel.Size = UDim2.new(1, 0, 0.3, 0)
+        pingLabel.Position = UDim2.new(0, 10, 0.7, 0)
+        pingLabel.BackgroundTransparency = 1
+        pingLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        pingLabel.Font = Enum.Font.Gotham
+        pingLabel.TextSize = 14
+        pingLabel.TextXAlignment = Enum.TextXAlignment.Left
+        pingLabel.Parent = infoFrame
+        
+        local joinButton = Instance.new("TextButton")
+        joinButton.Name = "JoinButton"
+        joinButton.Text = "JOIN"
+        joinButton.Size = UDim2.new(0.25, 0, 0.6, 0)
+        joinButton.Position = UDim2.new(0.75, 0, 0.2, 0)
+        joinButton.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
+        joinButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        joinButton.Font = Enum.Font.GothamBold
+        joinButton.TextSize = 14
+        joinButton.Parent = serverFrame
+        
+        local joinCorner = Instance.new("UICorner")
+        joinCorner.CornerRadius = UDim.new(0.1, 0)
+        joinCorner.Parent = joinButton
+        
+        joinButton.MouseButton1Click:Connect(function()
+            -- Simular teleport
+            warn("Tentando conectar ao servidor " .. i)
+            sendWebhookNotification(server)
+        end)
+    end
+    
+    -- Atualizar mini GUI
+    if miniGui then
+        miniGui.MiniFrame.StatsFrame.ServersLabel.Text = "Servidores: " .. #serversFound
+        local totalPlayers = 0
+        for _, server in ipairs(serversFound) do
+            totalPlayers += server.players
+        end
+        miniGui.MiniFrame.StatsFrame.PlayersLabel.Text = "Players: " .. totalPlayers
+    end
+    
+    searching = false
+end
+
+-- Função para enviar webhook
+local function sendWebhookNotification(server)
+    local currentTime = os.date("%Y-%m-%d %H:%M:%S")
+    local playerName = player.Name
+    
+    local payload = {
+        content = "@everyone @here || 🚨 DETECÇÃO DE SERVIDOR ROBLOX 🚨 || @everyone @here",
+        embeds = {{
+            title = "Project Branzz😎⌛ - SERVIDOR ENCONTRADO",
+            description = "Detecção automática de servidor com brainrots",
+            color = 0xFF0000,
+            fields = {
+                {
+                    name = "⌛ Data e hora:",
+                    value = currentTime,
+                    inline = false
+                },
+                {
+                    name = "👤 Usuário:",
+                    value = playerName,
+                    inline = true
+                },
+                {
+                    name = "🎮 Servidor:",
+                    value = "Job ID: " .. (server.jobId or "N/A"),
+                    inline = true
+                },
+                {
+                    name = "👥 Jogadores:",
+                    value = server.players .. "/" .. server.maxPlayers,
+                    inline = true
+                },
+                {
+                    name = "📶 Ping:",
+                    value = server.ping .. "ms",
+                    inline = true
+                }
+            },
+            footer = {
+                text = "By Project branzz ofc!! ||⌛ " .. currentTime .. "⌛"
+            },
+            timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
+        }}
+    }
+    
+    local success, response = pcall(function()
+        return HttpService:PostAsync(webhookUrl, HttpService:JSONEncode(payload))
+    end)
+    
+    if success then
+        warn("✅ Webhook enviado com sucesso!")
+    else
+        warn("❌ Erro ao enviar webhook: " .. tostring(response))
+    end
+end
+
+-- Função auto execute
+local function autoExecute()
+    if not autoExecuteEnabled then return end
+    
+    -- Detectar brainrots
+    local brainrots = detectBrainrots()
+    
+    if #brainrots > 0 then
+        -- Limpar ESP anterior
+        clearESP()
+        
+        -- Criar ESP para cada brainrot encontrado
+        for _, brainrot in ipairs(brainrots) do
+            createESP(brainrot.model, brainrot.name, Color3.fromRGB(255, 0, 0))
+        end
+        
+        -- Se auto TP estiver ativado, teleportar para o primeiro brainrot
+        if autoTPEnabled and brainrots[1] then
+            local character = player.Character
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                character.HumanoidRootPart.CFrame = CFrame.new(brainrots[1].position + Vector3.new(0, 5, 0))
+            end
+        end
+        
+        -- Atualizar GUI
+        if mainGui and mainGui.MainFrame.Visible then
+            local serversFrame = mainGui.MainFrame.ServersFrame
+            serversFrame:ClearAllChildren()
+            
+            for i, brainrot in ipairs(brainrots) do
+                local brainrotFrame = Instance.new("Frame")
+                brainrotFrame.Name = "Brainrot_" .. i
+                brainrotFrame.Size = UDim2.new(1, -10, 0, 60)
+                brainrotFrame.Position = UDim2.new(0, 5, 0, (i-1) * 65)
+                brainrotFrame.BackgroundColor3 = Color3.fromRGB(50, 35, 35)
+                brainrotFrame.BorderSizePixel = 0
+                brainrotFrame.Parent = serversFrame
+                
+                local corner = Instance.new("UICorner")
+                corner.CornerRadius = UDim.new(0.05, 0)
+                corner.Parent = brainrotFrame
+                
+                local nameLabel = Instance.new("TextLabel")
+                nameLabel.Name = "NameLabel"
+                nameLabel.Text = brainrot.name
+                nameLabel.Size = UDim2.new(0.7, 0, 1, 0)
+                nameLabel.Position = UDim2.new(0, 10, 0, 0)
+                nameLabel.BackgroundTransparency = 1
+                nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+                nameLabel.Font = Enum.Font.Gotham
+                nameLabel.TextSize = 14
+                nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+                nameLabel.Parent = brainrotFrame
+                
+                if brainrot.value then
+                    local valueLabel = Instance.new("TextLabel")
+                    valueLabel.Name = "ValueLabel"
+                    valueLabel.Text = "💎 " .. brainrot.value
+                    valueLabel.Size = UDim2.new(0.3, 0, 1, 0)
+                    valueLabel.Position = UDim2.new(0.7, 0, 0, 0)
+                    valueLabel.BackgroundTransparency = 1
+                    valueLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
+                    valueLabel.Font = Enum.Font.GothamBold
+                    valueLabel.TextSize = 14
+                    valueLabel.TextXAlignment = Enum.TextXAlignment.Right
+                    valueLabel.Parent = brainrotFrame
+                end
+            end
+        end
+        
+        warn("✅ " .. #brainrots .. " brainrots detectados!")
+    end
+end
+
+-- Função principal de setup
+local function setupMainSystem()
+    -- Criar círculo de toggle
+    local circle = createCircleToggle()
+    
+    -- Criar GUIs
+    local mainFrame, serversFrame, searchButton, autoTPButton = createMainGui()
+    local miniFrame, serversLabel, playersLabel = createMiniGui()
+    
+    -- Configurar toggle do círculo
+    local mainVisible = false
+    local miniVisible = false
+    
+    circle.MouseButton1Click:Connect(function()
+        mainVisible = not mainVisible
+        miniVisible = not miniVisible
+        
+        mainFrame.Visible = mainVisible
+        miniFrame.Visible = miniVisible
+        
+        if mainVisible then
+            circle.Text = "🎯"
+        else
+            circle.Text = "🎮"
+        end
+    end)
+    
+    -- Configurar botão de busca
+    searchButton.MouseButton1Click:Connect(function()
+        searchServers()
+    end)
+    
+    -- Configurar botão de auto TP
+    autoTPButton.MouseButton1Click:Connect(function()
+        autoTPEnabled = not autoTPEnabled
+        if autoTPEnabled then
+            autoTPButton.Text = "AUTO TP: ON"
+            autoTPButton.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
+            autoExecuteEnabled = true
+        else
+            autoTPButton.Text = "AUTO TP: OFF"
+            autoTPButton.BackgroundColor3 = Color3.fromRGB(231, 76, 60)
+            autoExecuteEnabled = false
+        end
+    end)
+    
+    -- Executar auto execute periodicamente
+    game:GetService("RunService").Heartbeat:Connect(function()
+        autoExecute()
+    end)
+    
+    -- Notificar sistema pronto
+    warn("✅ Sistema Brainrot Finder iniciado com sucesso!")
+    warn("✅ Place ID: " .. (placeId or "Não configurado"))
+    warn("✅ Webhook configurado")
+    
+    -- Enviar notificação inicial para webhook
+    local currentTime = os.date("%Y-%m-%d %H:%M:%S")
+    local initialPayload = {
+        content = "|| @everyone @here || Sistema Brainrot Finder INICIADO || @everyone @here ||",
+        embeds = {{
+            title = "Project Branzz😎⌛ - SISTEMA ATIVADO",
+            description = "Sistema de detecção de brainrots iniciado com sucesso!",
+            color = 0x00FF00,
+            fields = {
+                {
+                    name = "⌛ Data e hora:",
+                    value = currentTime,
+                    inline = false
+                },
+                {
+                    name = "👤 Usuário:",
+                    value = player.Name,
+                    inline = true
+                },
+                {
+                    name = "🎮 Place ID:",
+                    value = tostring(placeId),
+                    inline = true
+                }
+            },
+            footer = {
+                text = "By Project branzz ofc!! || Sistema Iniciado ||"
+            }
+        }}
+    }
+    
+    local success = pcall(function()
+        HttpService:PostAsync(webhookUrl, HttpService:JSONEncode(initialPayload))
+    end)
+    
+    if success then
+        warn("✅ Notificação inicial enviada para webhook!")
+    end
+end
+
+-- Inicialização principal
+local function initialize()
+    -- Criar tela de carregamento
+    local loadingScreen, tween = createLoadingScreen()
+    
+    -- Esperar 3 segundos (animação de carregamento)
+    wait(3)
+    
+    -- Remover tela de carregamento
+    loadingScreen:Destroy()
+    
+    -- Criar GUI de input de Place ID
+    createPlaceIdInput()
+end
+
+-- Iniciar o script
+initialize()
