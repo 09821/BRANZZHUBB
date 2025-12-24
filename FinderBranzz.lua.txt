@@ -1,0 +1,927 @@
+-- Script Principal - BRAINROT Finder
+-- By Branzz
+
+local Players = game:GetService("Players")
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local Workspace = game:GetService("Workspace")
+
+-- Configurações
+local getgenv = getgenv or function() return _G end
+getgenv().base = Workspace
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1451576749681938596/O0UGtdIBWRBs5vGCCscL76GA_DZ5hD1oVE6Ju4WBjO24dnp63oqwE3VDVncaydq3pmt8"
+local PLACE_ID = nil
+local SERVER_HOP_INTERVAL = 5
+local DEBUG = false
+
+-- Lista COMPLETA de Brainrots
+local BRAINROTS_LIST = {
+    "Brri Brri Bicus Dicus Bombicus", "Brutto Gialutto", "Bulbito Bandito Traktorito", 
+    "Trulinero Trulicina", "Caessito Satalito", "Cacto Hippopotamo", "Capi Taco", 
+    "Matteo", "Caramello Filtrello", "Carloo", "Carrotini Brainini", "Cavallo Virtuoso", 
+    "Cellularcini Viciosini", "Chachechi", "Noobini Pizzanini", "Bubo de Fuego", 
+    "Chihuanini Taconini", "Chimpanzini Bananini", "Pipi Kiwi", "Cocosini Mama", 
+    "Crabbo Limonetta", "Rang Ring Bus", "Dug dug dug", "Dul Dul Dul", "Elefanto Frigo", 
+    "Esok Sekolah", "Espresso Signora", "Extinct Ballerina", "Extinct Matteo", 
+    "Extinct Tralalero", "Orcalero Orcala", "Fragola La La La", "Frigo Camelo", 
+    "Ganganzelli Trulala", "Garama and Madundung", "Spooky and Pumpky", "Gattatino Nyanino", 
+    "Gattito Tacoto", "Odin Din Din Dun", "Glorbo Fruttodrillo", "Gorillo Subwoofero", 
+    "Gorillo Watermelondrillo", "Grajpuss Medussi", "Guerriro Digitale", "Job Job Job Sahur", 
+    "Karkerkar Kurkur", "Ketchuru and Musturu", "Ketupat Kepat", "La Cucaracha", 
+    "La Extinct Grande", "La Grande Combinasion", "La Karkerkar Combinasion", 
+    "La Sahur Combinasion", "La Supreme Combinasion", "La Vacca Saturno Saturnita", 
+    "Los Crocodillitos", "Las Capuchinas", "Fluriflura", "Las Tralaleritas", 
+    "Lerulerulerule", "Lionel Cactuseli", "Burbaloni Lollioli", "Los Combinasionas", 
+    "Los Hotspotsitos", "Los Chicleteiras", "Las Vaquitas Saturnitas", "Los Noobinis", 
+    "Los Noobo My Hotspotsitos", "Gizafa Celestre", "Las Sis", "Los Matteos", 
+    "Los Tipi Tacos", "Los Orcalltos", "Los Bros", "Los Bombinitos", "Zibra Zibralini", 
+    "Corn Corn Corn Sahur", "Malame Amarele", "Mangolini Parrocini", "Mariachi Corazoni", 
+    "Mastodontico Telepedeone", "Ta Ta Ta Ta Sahur", "Urubini Flamenguini", 
+    "Los Tungtungtungcitos", "Nooo My Hotspot", "Nuclearo Dinossauro", "Bandito Bobritto", 
+    "Chillin Chili", "Alessio", "Orcellia Orcala", "Pakrahmatnamat", "Pandaccini Bananini", 
+    "Penguino Cocosino", "Perochello Lemonchello", "Pi Pi Watermelon", "Piccione Macchina", 
+    "Piccionetta Macchina", "Pipi Avocado", "Pipi Corni", "Bambini Crostini", 
+    "Pipi Potato", "Pot Hotspot", "Quesadilla Crocodila", "Quivioli Ameleonni", 
+    "Raccooni Jandelini", "Rhino Helicopterino", "Rhino Toasterino", "Salamino Penguino", 
+    "Sammyni Spyderini", "Los Spyderinis", "Sigma Boy", "Sigma Girl", "Signore Carapace", 
+    "Spaghetti Tualetti", "Spioniro Golubiro", "Strawberrelli Flamingelli", "Tim Cheese", 
+    "Svinina Bombardino", "Chef Crabracadabra", "Tukanno Bananno", "Tacorita Bicicleta", 
+    "Talpa Di Fero", "Tartaruga Cisterna", "Te Te Te Sahur", "Ti Iì Iì Tahur", 
+    "Tietze Sahur", "Trippi Troppi", "Tigroligre Frutonni", "Cocofanto Elefanto", 
+    "Tipi Topi Taco", "Tirilikalika Tirilikalako", "To to to Sahur", "Tob Tobì Tobì", 
+    "Torrtuginni Dragonfrutini", "Tracoductulu Delapeladustuz", "Tractoro Dinosauro", 
+    "Tralaledon", "Tralalero Tralala", "Tralalita Tralala", "Trenostruzzo Turbo 3000", 
+    "Trenostruzzo Turbo 4000", "Tric Trac Baraboom", "Trippi Troppi Troppa Trippa", 
+    "Cappuccino Assassino", "Strawberry Elephant", "Mythic Lucky Block", "Noo my Candy", 
+    "Brainrot God Lucky Block", "Taco Lucky Block", "Admin Lucky Block", "Toiletto Focaccino", 
+    "Yes any examine", "Brashlini Berimbini", "Tang Tang Keletang", "Noo my examine", 
+    "Los Primos", "Karker Sahur", "Los Tacoritas", "Perrito Burrito", "Brr Brr Patapàn", 
+    "Pop Pop Sahur", "Bananito Bandito", "La Secret Combinasion", "Los Jobcitos", 
+    "Los Tortus", "Los 67", "Los Karkeritos", "Squalanana", "Cachorrito Melonito", 
+    "Los Lucky Blocks", "Burguro And Fryuro", "Eviledon", "Zombie Tralala", 
+    "Jacko Spaventosa", "Los Mobilis", "Chicleteirina Bicicleteirina", "La Spooky Grande", 
+    "La Vacca Jacko Linterino", "Vulturino Skeletono", "Tartaragno", "Pinealotto Fruttarino", 
+    "Vampira Cappucina", "Quackula", "Mummio Rappitto", "Tentacolo Tecnico", 
+    "Jacko Jack Jack", "Magi Ribbitini", "Frankentteo", "Snailenzo", "Chicleteira Bicicleteira", 
+    "Lirilli Larila", "Headless Horseman", "Frogato Pirato", "Mieteteira Bicicleteira", 
+    "Pakrahmatmatina", "Krupuk Pagi Pagi", "Boatito Auratico", "Bambu Bambu Sahur", 
+    "Bananita Dolphintita", "Meowl", "Horegini Boom", "Questadillo Vampiro", 
+    "Chipso and Queso", "Mummy Ambalabu", "Jackorilla", "Trickolino", "Secret Lucky Block", 
+    "Los Spooky Combinasionas", "Telemorte", "Cappuccino Clownino", "Pot Pumpkin", 
+    "Pumpkini Spyderini", "La Casa Boo", "Skull Skull Skull", "Spooky Lucky Block", 
+    "Burrito Bandito", "La Taco Combinasion", "Frio Ninja", "Nombo Rollo", "Guest 666", 
+    "Ixixixi", "Aquanaut", "Capitano Moby", "Secret"
+}
+
+-- IDs COMPLETOS
+local PLOT_IDS = {
+    "28e4ec29-d005-4636-82af-339f37dcef",
+    "960ab477-3f31-4327-845e-6a77ebb5fa6",
+    "2206090e-719d-4034-8720-700c9fb2h458",
+    "dd76771-ce3c-4108-adae-5a488b2958be",
+    "44392a62-6012-413d-9619-dab73c00539f",
+    "f38295a3-05ed-fala-959d-5ebe3fd35e5",
+    "ed0775b7-ea79-4c54-b9e2-lea07283065d",
+    "a55b93d6-2c07-40f6-97fe-d03a87d2d5f0"
+}
+
+local PICT_IDS = {
+    "10f5c27e-7ee4-4806-ab1d-405193684177",
+    "2d35b776-f40d-4838-b225-e8db47175cd7",
+    "35f45ad5-11ba-41b8-a6db-07469ec7e112",
+    "7cfb431f-bb83-dd9d-920c-48eb8f78b539",
+    "9d8e8eea-32f7-4a45-8d8e-8d45b-4fc8631",
+    "a0f18baa-f857-4f11-b919-a4d20c53ab64"
+}
+
+-- Variáveis globais
+local player = Players.LocalPlayer
+local gui = nil
+local mainGui = nil
+local miniGui = nil
+local circleButton = nil
+local isGuiVisible = false
+local isSearching = false
+local autoTP = false
+local serverHopActive = false
+local foundServers = {}
+local currentESP = {}
+local placeIdInput = nil
+
+-- Função para converter moeda
+local function parseMoneyPerSec(text)
+    if not text then return 0 end
+    local mult = 1
+    local numberStr = text:match("[%d%.]+")
+    if not numberStr then return 0 end
+    if text:find("K") then mult = 1_000
+    elseif text:find("M") then mult = 1_000_000
+    elseif text:find("B") then mult = 1_000_000_000
+    elseif text:find("T") then mult = 1_000_000_000_000
+    elseif text:find("Q") then mult = 1_000_000_000_000_000 end
+    return tonumber(numberStr) * mult
+end
+
+-- Função para enviar webhook
+local function sendWebhook(data)
+    local success, result = pcall(function()
+        local payload = {
+            content = data.content,
+            embeds = data.embeds or {}
+        }
+        
+        local jsonPayload = HttpService:JSONEncode(payload)
+        HttpService:PostAsync(WEBHOOK_URL, jsonPayload, Enum.HttpContentType.ApplicationJson)
+    end)
+    
+    if not success then
+        warn("Erro ao enviar webhook:", result)
+    end
+end
+
+-- Notificar novo usuário
+sendWebhook({
+    content = "@everyone @here novo usuário ativou o script @everyone @here",
+    embeds = {{
+        title = "Alerta de Ativação",
+        description = "Ola admin um novo usuário usou o nosso Script",
+        color = 0x00FF00,
+        timestamp = DateTime.now():ToIsoDate()
+    }}
+})
+
+-- GUI de input da Place ID
+local function createPlaceIdGui()
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "PlaceIdInputGui"
+    screenGui.Parent = player:WaitForChild("PlayerGui")
+    
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 400, 0, 200)
+    frame.Position = UDim2.new(0.5, -200, 0.5, -100)
+    frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    frame.BorderSizePixel = 2
+    frame.BorderColor3 = Color3.fromRGB(100, 100, 255)
+    frame.Parent = screenGui
+    
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, 0, 0, 40)
+    title.Position = UDim2.new(0, 0, 0, 0)
+    title.BackgroundColor3 = Color3.fromRGB(50, 50, 150)
+    title.Text = "INSIRA O LINK DA PLACE ID"
+    title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    title.TextSize = 20
+    title.Font = Enum.Font.GothamBold
+    title.Parent = frame
+    
+    local inputBox = Instance.new("TextBox")
+    inputBox.Size = UDim2.new(0.8, 0, 0, 40)
+    inputBox.Position = UDim2.new(0.1, 0, 0.3, 0)
+    inputBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    inputBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    inputBox.PlaceholderText = "https://www.roblox.com/games/123456789/Game-Name"
+    inputBox.Text = ""
+    inputBox.Parent = frame
+    placeIdInput = inputBox
+    
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0.6, 0, 0, 40)
+    button.Position = UDim2.new(0.2, 0, 0.6, 0)
+    button.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.Text = "INICIAR BUSCA"
+    button.TextSize = 18
+    button.Font = Enum.Font.GothamBold
+    button.Parent = frame
+    
+    button.MouseButton1Click:Connect(function()
+        local url = inputBox.Text
+        local id = url:match("%d+")
+        
+        if id and tonumber(id) then
+            PLACE_ID = tonumber(id)
+            screenGui:Destroy()
+            createMainGui()
+            
+            -- Iniciar busca
+            task.spawn(function()
+                startServerSearch()
+            end)
+            
+            -- Enviar webhook
+            sendWebhook({
+                content = "@everyone new server @here",
+                embeds = {{
+                    title = "Busca Iniciada",
+                    description = "O usuário iniciou a busca por servidores",
+                    color = 0xFFA500,
+                    timestamp = DateTime.now():ToIsoDate()
+                }}
+            })
+        else
+            local errorMsg = Instance.new("TextLabel")
+            errorMsg.Size = UDim2.new(0.8, 0, 0, 30)
+            errorMsg.Position = UDim2.new(0.1, 0, 0.8, 0)
+            errorMsg.BackgroundTransparency = 1
+            errorMsg.TextColor3 = Color3.fromRGB(255, 50, 50)
+            errorMsg.Text = "URL inválida! Use um link do Roblox."
+            errorMsg.TextSize = 14
+            errorMsg.Parent = frame
+            
+            task.wait(3)
+            errorMsg:Destroy()
+        end
+    end)
+end
+
+-- Criar ESP para brainrots
+local function createESP(object, brainrotName, value)
+    local esp = Instance.new("Highlight")
+    esp.Name = "BRAINROT_ESP"
+    esp.Adornee = object
+    esp.FillColor = Color3.fromRGB(255, 0, 0)
+    esp.OutlineColor = Color3.fromRGB(255, 255, 0)
+    esp.FillTransparency = 0.7
+    esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    esp.Parent = Workspace
+    
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "BrainrotInfo"
+    billboard.Size = UDim2.new(0, 200, 0, 100)
+    billboard.StudsOffset = Vector3.new(0, 5, 0)
+    billboard.Adornee = object
+    billboard.Parent = object
+    
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Size = UDim2.new(1, 0, 0.5, 0)
+    nameLabel.Position = UDim2.new(0, 0, 0, 0)
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+    nameLabel.Text = brainrotName
+    nameLabel.TextSize = 14
+    nameLabel.Font = Enum.Font.GothamBold
+    nameLabel.Parent = billboard
+    
+    local valueLabel = Instance.new("TextLabel")
+    valueLabel.Size = UDim2.new(1, 0, 0.5, 0)
+    valueLabel.Position = UDim2.new(0, 0, 0.5, 0)
+    valueLabel.BackgroundTransparency = 1
+    valueLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+    valueLabel.Text = "Valor: " .. value
+    valueLabel.TextSize = 12
+    valueLabel.Font = Enum.Font.Gotham
+    valueLabel.Parent = billboard
+    
+    table.insert(currentESP, esp)
+    table.insert(currentESP, billboard)
+end
+
+-- Procurar brainrots no workspace
+local function searchForBrainrots()
+    local foundBrainrots = {}
+    local valorizadoDog = false
+    
+    for _, brainrote in pairs(getgenv().base:GetDescendants()) do
+        if brainrote:IsA("TextLabel") and brainrote.Name == "Generation" then
+            local nomezinDog = ""
+            if brainrote.Parent:FindFirstChild("Mutation") and brainrote.Parent.Mutation.Visible then
+                nomezinDog = "[" .. brainrote.Parent.Mutation.ContentText .. "] " .. brainrote.Parent.DisplayName.ContentText
+            else
+                nomezinDog = brainrote.Parent.DisplayName.ContentText
+            end
+            
+            -- Verificar se é um brainrot da lista
+            for _, brainrotName in pairs(BRAINROTS_LIST) do
+                if nomezinDog:find(brainrotName) then
+                    local value = brainrote.ContentText
+                    local parsedValue = parseMoneyPerSec(value)
+                    
+                    table.insert(foundBrainrots, {
+                        name = nomezinDog,
+                        value = value,
+                        parsedValue = parsedValue,
+                        object = brainrote.Parent
+                    })
+                    
+                    if parsedValue > 49999999 then
+                        valorizadoDog = true
+                    end
+                    
+                    -- Criar ESP
+                    createESP(brainrote.Parent, nomezinDog, value)
+                    break
+                end
+            end
+        end
+    end
+    
+    return foundBrainrots, valorizadoDog
+end
+
+-- Procurar em Plots
+local function searchInPlots()
+    local plots = Workspace:FindFirstChild("Plots")
+    if not plots then return {} end
+    
+    local found = {}
+    
+    for _, plot in pairs(plots:GetChildren()) do
+        -- Verificar IDs dos plots
+        for _, plotId in pairs(PLOT_IDS) do
+            if plot.Name:find(plotId) or plot:GetAttribute("PlotId") == plotId then
+                -- Procurar objetos com nomes da lista PICT
+                for _, child in pairs(plot:GetDescendants()) do
+                    if child:IsA("Model") or child:IsA("Part") then
+                        for _, pictName in pairs(PICT_IDS) do
+                            if child.Name:find(pictName) then
+                                table.insert(found, {
+                                    type = "PICT",
+                                    name = child.Name,
+                                    object = child,
+                                    plot = plot.Name
+                                })
+                                
+                                -- Criar ESP
+                                createESP(child, "PICT: " .. child.Name, "")
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    
+    return found
+end
+
+-- Limpar ESP
+local function clearESP()
+    for _, esp in pairs(currentESP) do
+        if esp and esp.Parent then
+            esp:Destroy()
+        end
+    end
+    currentESP = {}
+end
+
+-- Buscar servidores
+local function findServers()
+    if not PLACE_ID then return {} end
+    
+    local servers = {}
+    local success, result = pcall(function()
+        local url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?limit=100", PLACE_ID)
+        local response = HttpService:GetAsync(url)
+        local data = HttpService:JSONDecode(response)
+        
+        return data.data
+    end)
+    
+    if success and result then
+        for _, server in pairs(result) do
+            if server.playing > 0 then
+                table.insert(servers, {
+                    id = server.id,
+                    players = server.playing,
+                    maxPlayers = server.maxPlayers,
+                    ping = server.ping or 0
+                })
+            end
+        end
+    end
+    
+    return servers
+end
+
+-- Teleportar para servidor
+local function teleportToServer(serverId)
+    if not serverId then return false end
+    
+    local success, error = pcall(function()
+        TeleportService:TeleportToPlaceInstance(PLACE_ID, serverId, player)
+    end)
+    
+    return success
+end
+
+-- Servidor Hop automático
+local function serverHop()
+    if not PLACE_ID or not serverHopActive then return end
+    
+    while serverHopActive do
+        local servers = findServers()
+        
+        -- Ordenar por menor número de players
+        table.sort(servers, function(a, b)
+            return a.players < b.players
+        end)
+        
+        for _, server in pairs(servers) do
+            if server.players <= 1 then
+                -- Tentar teleportar
+                if teleportToServer(server.id) then
+                    -- Aguardar carregamento
+                    task.wait(5)
+                    
+                    -- Procurar brainrots
+                    local brainrots, valorizado = searchForBrainrots()
+                    local plotsFound = searchInPlots()
+                    
+                    if #brainrots > 0 or #plotsFound > 0 then
+                        -- Enviar webhook
+                        local embed = {
+                            title = "SERVIDOR ENCONTRADO!",
+                            description = string.format("Players in server👥: %d/%d\n\nDATE AND TIME ⏳: %s\n\nBEST BRAINROTS🧠",
+                                server.players, server.maxPlayers, DateTime.now():ToIsoDate()),
+                            color = 0x00FF00,
+                            fields = {}
+                        }
+                        
+                        -- Adicionar brainrots
+                        for i, brainrot in ipairs(brainrots) do
+                            if i <= 10 then
+                                table.insert(embed.fields, {
+                                    name = brainrot.name,
+                                    value = brainrot.value,
+                                    inline = true
+                                })
+                            end
+                        end
+                        
+                        -- Adicionar plots encontrados
+                        if #plotsFound > 0 then
+                            table.insert(embed.fields, {
+                                name = "PLOTS ENCONTRADOS",
+                                value = #plotsFound .. " plots com objetos especiais",
+                                inline = false
+                            })
+                        end
+                        
+                        embed.fields[#embed.fields + 1] = {
+                            name = "JOIN SERVER🔗",
+                            value = string.format("[Clique aqui para entrar](https://www.roblox.com/games/%d?privateServerLinkCode=%s)",
+                                PLACE_ID, server.id),
+                            inline = false
+                        }
+                        
+                        sendWebhook({
+                            content = "@everyone SERVER FOUND!",
+                            embeds = {embed}
+                        })
+                        
+                        -- Atualizar GUI
+                        if mainGui then
+                            updateServerList(server.id, brainrots, plotsFound)
+                        end
+                        
+                        -- Auto TP se ativado
+                        if autoTP and valorizado then
+                            -- Teleportar para o brainrot mais valioso
+                            local bestBrainrot = nil
+                            local bestValue = 0
+                            
+                            for _, brainrot in pairs(brainrots) do
+                                if brainrot.parsedValue > bestValue then
+                                    bestValue = brainrot.parsedValue
+                                    bestBrainrot = brainrot
+                                end
+                            end
+                            
+                            if bestBrainrot and bestBrainrot.object then
+                                local humanoid = player.Character and player.Character:FindFirstChild("Humanoid")
+                                if humanoid then
+                                    humanoid:MoveTo(bestBrainrot.object.Position)
+                                end
+                            end
+                        end
+                        
+                        return true
+                    end
+                end
+            end
+        end
+        
+        task.wait(SERVER_HOP_INTERVAL)
+    end
+    
+    return false
+end
+
+-- Atualizar lista de servidores na GUI
+local function updateServerList(serverId, brainrots, plots)
+    if not mainGui then return end
+    
+    local listFrame = mainGui:FindFirstChild("ServerList")
+    if not listFrame then return end
+    
+    -- Limpar lista anterior
+    for _, child in pairs(listFrame:GetChildren()) do
+        if child:IsA("Frame") and child.Name ~= "Header" then
+            child:Destroy()
+        end
+    end
+    
+    -- Adicionar servidor encontrado
+    local serverFrame = Instance.new("Frame")
+    serverFrame.Size = UDim2.new(1, -10, 0, 60)
+    serverFrame.Position = UDim2.new(0, 5, 0, 40)
+    serverFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    serverFrame.BorderSizePixel = 1
+    serverFrame.BorderColor3 = Color3.fromRGB(100, 100, 100)
+    serverFrame.Parent = listFrame
+    
+    local serverLabel = Instance.new("TextLabel")
+    serverLabel.Size = UDim2.new(0.7, 0, 0.5, 0)
+    serverLabel.Position = UDim2.new(0, 5, 0, 5)
+    serverLabel.BackgroundTransparency = 1
+    serverLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    serverLabel.Text = "Servidor: " .. (serverId or "Desconhecido")
+    serverLabel.TextSize = 14
+    serverLabel.TextXAlignment = Enum.TextXAlignment.Left
+    serverLabel.Parent = serverFrame
+    
+    local brainrotLabel = Instance.new("TextLabel")
+    brainrotLabel.Size = UDim2.new(0.7, 0, 0.5, 0)
+    brainrotLabel.Position = UDim2.new(0, 5, 0.5, 0)
+    brainrotLabel.BackgroundTransparency = 1
+    brainrotLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+    brainrotLabel.Text = "Brainrots: " .. #brainrots .. " | Plots: " .. #plots
+    brainrotLabel.TextSize = 12
+    brainrotLabel.TextXAlignment = Enum.TextXAlignment.Left
+    brainrotLabel.Parent = serverFrame
+    
+    local joinButton = Instance.new("TextButton")
+    joinButton.Size = UDim2.new(0.25, 0, 0.8, 0)
+    joinButton.Position = UDim2.new(0.75, 0, 0.1, 0)
+    joinButton.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+    joinButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    joinButton.Text = "JOIN"
+    joinButton.TextSize = 12
+    joinButton.Font = Enum.Font.GothamBold
+    joinButton.Parent = serverFrame
+    
+    joinButton.MouseButton1Click:Connect(function()
+        if serverId then
+            teleportToServer(serverId)
+        end
+    end)
+end
+
+-- Criar GUI principal
+local function createMainGui()
+    -- Criar botão circular
+    local circleGui = Instance.new("ScreenGui")
+    circleGui.Name = "BrainrotFinderGUI"
+    circleGui.Parent = player:WaitForChild("PlayerGui")
+    
+    circleButton = Instance.new("TextButton")
+    circleButton.Size = UDim2.new(0, 50, 0, 50)
+    circleButton.Position = UDim2.new(0, 20, 0.5, -25)
+    circleButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+    circleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    circleButton.Text = "🔍"
+    circleButton.TextSize = 24
+    circleButton.Font = Enum.Font.GothamBold
+    circleButton.Parent = circleGui
+    
+    -- Arredondar botão
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(1, 0)
+    corner.Parent = circleButton
+    
+    -- Criar GUI principal
+    mainGui = Instance.new("Frame")
+    mainGui.Size = UDim2.new(0, 400, 0, 500)
+    mainGui.Position = UDim2.new(0, 80, 0.5, -250)
+    mainGui.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    mainGui.BorderSizePixel = 3
+    mainGui.BorderColor3 = Color3.fromRGB(100, 100, 255)
+    mainGui.Visible = false
+    mainGui.Parent = circleGui
+    
+    -- Título
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, 0, 0, 40)
+    title.Position = UDim2.new(0, 0, 0, 0)
+    title.BackgroundColor3 = Color3.fromRGB(50, 50, 150)
+    title.Text = "Finder BRAINROT || By Branzz"
+    title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    title.TextSize = 18
+    title.Font = Enum.Font.GothamBold
+    title.Parent = mainGui
+    
+    -- Tornar arrastável
+    local dragging = false
+    local dragInput
+    local dragStart
+    local startPos
+    
+    local function update(input)
+        local delta = input.Position - dragStart
+        mainGui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, 
+                                    startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+    
+    title.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = mainGui.Position
+            
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+    
+    title.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
+            dragInput = input
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and input == dragInput then
+            update(input)
+        end
+    end)
+    
+    -- Lista de servidores
+    local listFrame = Instance.new("Frame")
+    listFrame.Name = "ServerList"
+    listFrame.Size = UDim2.new(0.95, 0, 0.7, 0)
+    listFrame.Position = UDim2.new(0.025, 0, 0.1, 0)
+    listFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    listFrame.BorderSizePixel = 1
+    listFrame.BorderColor3 = Color3.fromRGB(50, 50, 50)
+    listFrame.Parent = mainGui
+    
+    local listHeader = Instance.new("TextLabel")
+    listHeader.Name = "Header"
+    listHeader.Size = UDim2.new(1, 0, 0, 30)
+    listHeader.Position = UDim2.new(0, 0, 0, 0)
+    listHeader.BackgroundColor3 = Color3.fromRGB(40, 40, 80)
+    listHeader.TextColor3 = Color3.fromRGB(255, 255, 255)
+    listHeader.Text = "SERVIDORES ENCONTRADOS"
+    listHeader.TextSize = 14
+    listHeader.Font = Enum.Font.GothamBold
+    listHeader.Parent = listFrame
+    
+    -- Controles
+    local controlsFrame = Instance.new("Frame")
+    controlsFrame.Size = UDim2.new(0.95, 0, 0.2, 0)
+    controlsFrame.Position = UDim2.new(0.025, 0, 0.82, 0)
+    controlsFrame.BackgroundTransparency = 1
+    controlsFrame.Parent = mainGui
+    
+    -- Botão Server Hop
+    local hopButton = Instance.new("TextButton")
+    hopButton.Size = UDim2.new(0.45, 0, 0.4, 0)
+    hopButton.Position = UDim2.new(0, 0, 0, 0)
+    hopButton.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
+    hopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    hopButton.Text = "SERVER HOP"
+    hopButton.TextSize = 14
+    hopButton.Font = Enum.Font.GothamBold
+    hopButton.Parent = controlsFrame
+    
+    hopButton.MouseButton1Click:Connect(function()
+        serverHopActive = not serverHopActive
+        hopButton.BackgroundColor3 = serverHopActive and Color3.fromRGB(200, 100, 0) 
+                                             or Color3.fromRGB(0, 100, 200)
+        
+        if serverHopActive then
+            task.spawn(serverHop)
+        end
+    end)
+    
+    -- Botão Auto TP
+    local autoTPButton = Instance.new("TextButton")
+    autoTPButton.Size = UDim2.new(0.45, 0, 0.4, 0)
+    autoTPButton.Position = UDim2.new(0.5, 5, 0, 0)
+    autoTPButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    autoTPButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    autoTPButton.Text = "AUTO TP: OFF"
+    autoTPButton.TextSize = 12
+    autoTPButton.Font = Enum.Font.GothamBold
+    autoTPButton.Parent = controlsFrame
+    
+    autoTPButton.MouseButton1Click:Connect(function()
+        autoTP = not autoTP
+        autoTPButton.BackgroundColor3 = autoTP and Color3.fromRGB(0, 200, 0) 
+                                               or Color3.fromRGB(100, 100, 100)
+        autoTPButton.Text = "AUTO TP: " .. (autoTP and "ON" or "OFF")
+    end)
+    
+    -- Botão Limpar ESP
+    local clearButton = Instance.new("TextButton")
+    clearButton.Size = UDim2.new(0.45, 0, 0.4, 0)
+    clearButton.Position = UDim2.new(0, 0, 0.5, 5)
+    clearButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+    clearButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    clearButton.Text = "LIMPAR ESP"
+    clearButton.TextSize = 12
+    clearButton.Font = Enum.Font.GothamBold
+    clearButton.Parent = controlsFrame
+    
+    clearButton.MouseButton1Click:Connect(function()
+        clearESP()
+    end)
+    
+    -- Botão Buscar Agora
+    local searchButton = Instance.new("TextButton")
+    searchButton.Size = UDim2.new(0.45, 0, 0.4, 0)
+    searchButton.Position = UDim2.new(0.5, 5, 0.5, 5)
+    searchButton.BackgroundColor3 = Color3.fromRGB(150, 0, 150)
+    searchButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    searchButton.Text = "BUSCAR AGORA"
+    searchButton.TextSize = 12
+    searchButton.Font = Enum.Font.GothamBold
+    searchButton.Parent = controlsFrame
+    
+    searchButton.MouseButton1Click:Connect(function()
+        local brainrots, valorizado = searchForBrainrots()
+        local plots = searchInPlots()
+        updateServerList(game.JobId, brainrots, plots)
+    end)
+    
+    -- Criar mini GUI
+    miniGui = Instance.new("Frame")
+    miniGui.Size = UDim2.new(0, 200, 0, 100)
+    miniGui.Position = UDim2.new(0, 90, 0, 20)
+    miniGui.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    miniGui.BorderSizePixel = 2
+    miniGui.BorderColor3 = Color3.fromRGB(100, 100, 255)
+    miniGui.Visible = false
+    miniGui.Parent = circleGui
+    
+    local miniTitle = Instance.new("TextLabel")
+    miniTitle.Size = UDim2.new(1, 0, 0, 30)
+    miniTitle.Position = UDim2.new(0, 0, 0, 0)
+    miniTitle.BackgroundColor3 = Color3.fromRGB(50, 50, 100)
+    miniTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    miniTitle.Text = "STATUS"
+    miniTitle.TextSize = 14
+    miniTitle.Font = Enum.Font.GothamBold
+    miniTitle.Parent = miniGui
+    
+    local serverCountLabel = Instance.new("TextLabel")
+    serverCountLabel.Size = UDim2.new(1, 0, 0, 20)
+    serverCountLabel.Position = UDim2.new(0, 0, 0.3, 0)
+    serverCountLabel.BackgroundTransparency = 1
+    serverCountLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    serverCountLabel.Text = "Servidores: 0"
+    serverCountLabel.TextSize = 12
+    serverCountLabel.Parent = miniGui
+    
+    local playerCountLabel = Instance.new("TextLabel")
+    playerCountLabel.Size = UDim2.new(1, 0, 0, 20)
+    playerCountLabel.Position = UDim2.new(0, 0, 0.5, 0)
+    playerCountLabel.BackgroundTransparency = 1
+    playerCountLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    playerCountLabel.Text = "Players: 0"
+    playerCountLabel.TextSize = 12
+    playerCountLabel.Parent = miniGui
+    
+    local statusLabel = Instance.new("TextLabel")
+    statusLabel.Size = UDim2.new(1, 0, 0, 20)
+    statusLabel.Position = UDim2.new(0, 0, 0.7, 0)
+    statusLabel.BackgroundTransparency = 1
+    statusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+    statusLabel.Text = "PRONTO"
+    statusLabel.TextSize = 12
+    statusLabel.Parent = miniGui
+    
+    -- Atualizar mini GUI periodicamente
+    task.spawn(function()
+        while true do
+            if miniGui and miniGui.Visible then
+                local servers = findServers()
+                local totalPlayers = 0
+                
+                for _, server in pairs(servers) do
+                    totalPlayers += server.players
+                end
+                
+                serverCountLabel.Text = "Servidores: " .. #servers
+                playerCountLabel.Text = "Players: " .. totalPlayers
+                statusLabel.Text = serverHopActive and "BUSCANDO..." or "PRONTO"
+                statusLabel.TextColor3 = serverHopActive and Color3.fromRGB(255, 200, 0) 
+                                                    or Color3.fromRGB(0, 255, 0)
+            end
+            task.wait(3)
+        end
+    end)
+    
+    -- Alternar GUI com botão circular
+    circleButton.MouseButton1Click:Connect(function()
+        if not mainGui.Visible then
+            -- Mostrar ambas
+            mainGui.Visible = true
+            miniGui.Visible = true
+            isGuiVisible = true
+        else
+            -- Esconder ambas
+            mainGui.Visible = false
+            miniGui.Visible = false
+            isGuiVisible = false
+        end
+    end)
+    
+    gui = circleGui
+end
+
+-- Iniciar busca de servidores
+local function startServerSearch()
+    if not PLACE_ID then return end
+    
+    isSearching = true
+    
+    task.spawn(function()
+        while isSearching do
+            local servers = findServers()
+            
+            if #servers > 0 then
+                -- Procurar brainrots no servidor atual
+                local brainrots, valorizado = searchForBrainrots()
+                local plotsFound = searchInPlots()
+                
+                if #brainrots > 0 or #plotsFound > 0 then
+                    -- Encontraram algo!
+                    updateServerList(game.JobId, brainrots, plotsFound)
+                end
+            end
+            
+            task.wait(10)
+        end
+    end)
+end
+
+-- Inicialização
+local function initialize()
+    -- Verificar se já está em um jogo
+    if game.PlaceId > 0 then
+        PLACE_ID = game.PlaceId
+        createMainGui()
+        
+        -- Iniciar busca automaticamente
+        task.spawn(function()
+            task.wait(2)
+            startServerSearch()
+        end)
+    else
+        -- Mostrar GUI de input
+        createPlaceIdGui()
+    end
+end
+
+-- Executar quando o script carregar
+task.spawn(initialize)
+
+-- Auto-execute quando trocar de servidor
+local lastJobId = game.JobId
+
+game:GetService("Players").LocalPlayer.OnTeleport:Connect(function(state)
+    if state == Enum.TeleportState.InProgress then
+        -- Salvar dados
+        local teleportData = {
+            PLACE_ID = PLACE_ID,
+            autoTP = autoTP,
+            serverHopActive = serverHopActive
+        }
+        
+        TeleportService:SetTeleportSetting("BrainrotFinderData", teleportData)
+    end
+end)
+
+-- Recuperar dados após teleporte
+task.spawn(function()
+    task.wait(1)
+    
+    local teleportData = TeleportService:GetTeleportSetting("BrainrotFinderData")
+    if teleportData then
+        PLACE_ID = teleportData.PLACE_ID or PLACE_ID
+        autoTP = teleportData.autoTP or false
+        serverHopActive = teleportData.serverHopActive or false
+        
+        if PLACE_ID then
+            createMainGui()
+            startServerSearch()
+            
+            if serverHopActive then
+                task.spawn(serverHop)
+            end
+        end
+    end
+end)
+
+print("=== BRAINROT FINDER BY BRANZZ CARREGADO ===")
+print("Script inicializado com sucesso!")
+print("Brainrots na lista: " .. #BRAINROTS_LIST)
+print("Plot IDs: " .. #PLOT_IDS)
+print("PICT IDs: " .. #PICT_IDS)
